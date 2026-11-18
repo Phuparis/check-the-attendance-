@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>จำลองเช็คชื่อ Beacon</title>
+<style>
+  :root { --green:#06c755; --ink:#1f2328; --muted:#6b7280; --line:#e5e7eb; --bg:#f4f6f8; --card:#fff; --red:#b91c1c; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:system-ui,-apple-system,"Noto Sans Thai",sans-serif; color:var(--ink); background:var(--bg); }
+  header { padding:20px 16px 4px; max-width:1100px; margin:0 auto; }
+  h1 { margin:0; font-size:21px; }
+  header p { margin:6px 0 0; color:var(--muted); font-size:14px; line-height:1.6; }
+  main { display:grid; grid-template-columns:1fr 320px; gap:18px; padding:14px 16px 32px; max-width:1100px; margin:0 auto; }
+  @media (max-width:820px){ main { grid-template-columns:1fr; } }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; min-width:0; }
+  .card h2 { margin:0 0 4px; font-size:16px; }
+  .hint { color:var(--muted); font-size:13px; margin:0 0 14px; line-height:1.6; }
+  .office { border:2px dashed #cbd5e1; border-radius:12px; padding:14px; background:#fbfcfd; }
+  .door { text-align:center; font-size:12px; color:var(--muted); letter-spacing:2px; margin-bottom:10px; }
+  .beacons { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:12px; }
+  .beacon { border:1px solid var(--line); border-radius:12px; padding:14px; background:#fff; }
+  .beacon .name { font-weight:600; }
+  .beacon .meta { font-size:12px; color:var(--muted); margin:4px 0 12px; }
+  .beacon .meta code { font-family:ui-monospace,monospace; }
+  .dot { display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--green); margin-right:6px; }
+  .beacon.pulse .dot { animation:pulse 1s ease-out 2; }
+  @keyframes pulse { from { box-shadow:0 0 0 0 rgba(6,199,85,.6); } to { box-shadow:0 0 0 14px rgba(6,199,85,0); } }
+  button { font:inherit; font-size:14px; border-radius:10px; border:1px solid var(--line); background:#fff; padding:9px 12px; cursor:pointer; width:100%; margin-top:6px; text-align:left; }
+  button.primary { background:var(--green); border-color:var(--green); color:#fff; font-weight:600; text-align:center; }
+  button.attack { color:var(--red); }
+  button:disabled { opacity:.5; cursor:wait; }
+  .toolbar { display:flex; gap:10px; align-items:center; margin-top:14px; flex-wrap:wrap; }
+  .toolbar button { width:auto; margin:0; }
+  .status { font-size:13px; color:var(--muted); }
+  .phone { background:#8cabd9; border-radius:24px; padding:14px; min-height:420px; border:8px solid #222; }
+  .phone .top { background:#fff; margin:-14px -14px 12px; padding:10px 14px; border-radius:16px 16px 0 0; font-weight:600; font-size:14px; }
+  .bubble { background:#fff; border-radius:16px; padding:9px 12px; margin:0 24px 8px 0; font-size:14px; line-height:1.5; white-space:pre-line; animation:pop .25s ease-out; }
+  .chips { display:flex; gap:6px; flex-wrap:wrap; margin:-2px 0 10px; }
+  .chip { background:rgba(255,255,255,.9); border-radius:999px; padding:3px 10px; font-size:12px; color:#1d4ed8; }
+  .sys { text-align:center; font-size:12px; color:#fff; background:rgba(0,0,0,.25); border-radius:10px; padding:4px 8px; margin:0 auto 8px; width:fit-content; max-width:100%; }
+  @keyframes pop { from { transform:scale(.9); opacity:0; } }
+  pre { background:#0f172a; color:#e2e8f0; border-radius:10px; padding:12px; font-size:12px; overflow:auto; max-height:260px; margin:0; }
+  .log-title { display:flex; justify-content:space-between; align-items:center; margin:18px 0 8px; gap:8px; }
+  .tag { font-size:12px; border-radius:999px; padding:2px 10px; white-space:nowrap; }
+  .tag.sent { background:#dcfce7; color:#166534; } .tag.skipped { background:#fef3c7; color:#92400e; } .tag.rejected,.tag.error { background:#fee2e2; color:#991b1b; }
+  .warn { background:#fef3c7; color:#92400e; border-radius:10px; padding:10px 12px; font-size:13px; margin-bottom:12px; display:none; line-height:1.6; }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="title">จำลองเช็คชื่อด้วย Beacon</h1>
+  <p>จำลองพนักงานเดินเข้าระยะ beacon โดยไม่ต้องมีอุปกรณ์จริง ระบบจะส่ง event หน้าตาเหมือนที่ LINE ส่งมา
+    เข้าไปที่เซิร์ฟเวอร์ แล้วข้อความจะเด้งเข้า LINE ของคุณจริง ๆ ลองปุ่มสีแดงเพื่อดูว่าระบบกันการโกงได้ไหม</p>
+</header>
+
+<main>
+  <section class="card">
+    <h2>ผังออฟฟิศ</h2>
+    <p class="hint">เวลาเข้างาน <b id="workStart">09:00</b> น. · เช็คอินได้วันละครั้ง เดินเข้าระยะซ้ำระบบจะไม่ส่งข้อความรัว ๆ
+      · เลิกงานกดปุ่ม "เลิกงาน" ในแชท LINE</p>
+    <div class="warn" id="warn"></div>
+    <div class="office">
+      <div class="door">ทางเข้าออฟฟิศ</div>
+      <div class="beacons" id="beacons"></div>
+    </div>
+    <div class="toolbar">
+      <button id="reset">ล้างเวลาวันนี้ของฉัน</button>
+      <span class="status" id="status"></span>
+    </div>
+
+    <div class="log-title"><h2>ผลจากเซิร์ฟเวอร์ล่าสุด</h2><span id="tag"></span></div>
+    <pre id="log">ยังไม่มีข้อมูล ลองกดปุ่มด้านบน</pre>
+  </section>
+
+  <aside class="phone" aria-label="ตัวอย่างหน้าแชท LINE">
+    <div class="top" id="phoneTitle">LINE</div>
+    <div id="chat"><div class="sys">ข้อความที่ส่งสำเร็จจะแสดงตรงนี้ด้วย</div></div>
+  </aside>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const reasons = {
+  'already-checked-in': 'วันนี้เช็คอินไปแล้ว ระบบจึงไม่ส่งข้อความซ้ำ',
+  'not-registered': 'ยังไม่ได้ลงทะเบียน พิมพ์ "ลงทะเบียน ชื่อ นามสกุล" ในแชท LINE ก่อน',
+  'token-expired': 'กันได้ ✅ รหัสหมดอายุแล้ว (สัญญาณที่ก๊อปไว้ใช้ไม่ได้)',
+  'token-bad-format': 'กันได้ ✅ ไม่มีรหัสหมุนเวียนที่ถูกต้อง',
+  'token-missing': 'กันได้ ✅ ไม่มีรหัสหมุนเวียน',
+  'token-bad-signature': 'กันได้ ✅ ลายเซ็นไม่ถูกต้อง',
+  'unknown-beacon': 'beacon นี้ไม่ได้ลงทะเบียนไว้',
+};
+
+function addChat(messages) {
+  const chat = $('chat');
+  for (const m of messages) {
+    if (m.type !== 'text') continue;
+    const b = document.createElement('div');
+    b.className = 'bubble';
+    b.textContent = m.text;
+    chat.appendChild(b);
+    if (m.quickReply) {
+      const chips = document.createElement('div');
+      chips.className = 'chips';
+      for (const item of m.quickReply.items) {
+        const c = document.createElement('span');
+        c.className = 'chip';
+        c.textContent = item.action.label;
+        chips.appendChild(c);
+      }
+      chat.appendChild(chips);
+    }
+  }
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function addSys(text) {
+  const s = document.createElement('div');
+  s.className = 'sys';
+  s.textContent = text;
+  $('chat').appendChild(s);
+}
+
+async function simulate(beacon, signal, card, buttons) {
+  buttons.forEach((b) => (b.disabled = true));
+  card.classList.remove('pulse'); void card.offsetWidth; card.classList.add('pulse');
+  $('status').textContent = 'กำลังส่ง...';
+  try {
+    const res = await fetch('/api/simulate/beacon', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ hwid: beacon.hwid, signal }),
+    });
+    const body = await res.json();
+    $('log').textContent = JSON.stringify(body.event ? { event: body.event, result: body.result || body.error } : body, null, 2);
+    const status = body.error ? 'error' : body.result.status;
+    $('tag').className = `tag ${status}`;
+    $('tag').textContent = { sent: 'ส่งแล้ว', skipped: 'ไม่ส่ง', rejected: 'ปฏิเสธ', error: 'ผิดพลาด' }[status];
+    const reason = body.result?.reason;
+    $('status').textContent = body.error || reasons[reason] || (status === 'sent' ? 'ส่งข้อความเข้า LINE แล้ว' : '');
+    if (body.messages?.length) addChat(body.messages);
+    else if (reason) addSys(reasons[reason] || reason);
+  } catch (err) {
+    $('status').textContent = 'ต่อเซิร์ฟเวอร์ไม่ได้: ' + err.message;
+  } finally {
+    buttons.forEach((b) => (b.disabled = false));
+  }
+}
+
+async function init() {
+  const info = await (await fetch('/api/beacons')).json();
+  $('title').textContent = `จำลองเช็คชื่อ · ${info.companyName}`;
+  $('phoneTitle').textContent = `LINE · ${info.companyName}`;
+  $('workStart').textContent = info.workStart;
+  if (!info.demoUserReady) {
+    $('warn').textContent = 'ยังไม่รู้ว่าจะส่งข้อความหาใคร: แอดบอทเป็นเพื่อนใน LINE แล้วพิมพ์อะไรก็ได้ 1 ครั้ง แล้วรีเฟรชหน้านี้';
+    $('warn').style.display = 'block';
+  } else if (!info.demoUserName) {
+    $('warn').textContent = 'ยังไม่ได้ลงทะเบียน: พิมพ์ในแชท LINE ว่า "ลงทะเบียน ชื่อ นามสกุล" ก่อนลองเช็คอิน';
+    $('warn').style.display = 'block';
+  }
+
+  for (const beacon of info.beacons) {
+    const card = document.createElement('div');
+    card.className = 'beacon';
+    card.innerHTML = `<div class="name"><span class="dot"></span></div>
+      <div class="meta"></div>`;
+    card.querySelector('.name').append(beacon.name);
+    card.querySelector('.meta').innerHTML = `สาขา <span></span> · HWID <code></code><br>${beacon.requireToken ? '🔒 ต้องมีรหัสหมุนเวียน' : '⚠️ รับแค่ HWID (โหมดทดสอบ)'}`;
+    card.querySelector('.meta span').textContent = beacon.branch;
+    card.querySelector('.meta code').textContent = beacon.hwid;
+
+    const options = [
+      ['real', 'เดินเข้าออฟฟิศ', 'primary'],
+      ['copied', '🕵️ ใช้สัญญาณที่ก๊อปไว้เมื่อ 5 นาทีก่อน', 'attack'],
+      ['fake', '🕵️ ปล่อยแค่ HWID จากแอปในมือถือ', 'attack'],
+    ];
+    const buttons = options.map(([signal, label, cls]) => {
+      const b = document.createElement('button');
+      b.textContent = label;
+      b.className = cls;
+      card.appendChild(b);
+      return [signal, b];
+    });
+    const all = buttons.map(([, b]) => b);
+    buttons.forEach(([signal, b]) => (b.onclick = () => simulate(beacon, signal, card, all)));
+    $('beacons').appendChild(card);
+  }
+}
+
+$('reset').onclick = async () => {
+  await fetch('/api/simulate/reset', { method: 'POST' });
+  $('status').textContent = 'ล้างเวลาวันนี้แล้ว ลองเช็คอินใหม่ได้';
+  addSys('ล้างเวลาวันนี้แล้ว');
+};
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+[
+  {
+    "hwid": "0123456789",
+    "name": "ประตูหน้าออฟฟิศ",
+    "branch": "สำนักงานใหญ่",
+    "requireToken": true
+  },
+  {
+    "hwid": "abcdef0123",
+    "name": "ทดสอบด้วยมือถือ (nRF Connect)",
+    "branch": "สำนักงานใหญ่",
+    "requireToken": false
+  }
+]

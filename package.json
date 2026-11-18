@@ -1,0 +1,23 @@
+{
+  "name": "check-the-attendance",
+  "version": "1.0.0",
+  "description": "ระบบเช็คชื่อเข้างานด้วย LINE Beacon: เดินเข้าออฟฟิศแล้วลงเวลาให้อัตโนมัติ กันก๊อปสัญญาณด้วยรหัสหมุนเวียน บันทึกลง Google Sheets",
+  "private": true,
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test tests/*.test.js",
+    "secret": "node tools/gen-secret.js",
+    "beacon:packet": "node tools/beacon-packet.js"
+  },
+  "dependencies": {
+    "@line/bot-sdk": "^9.4.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}
