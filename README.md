@@ -78,10 +78,8 @@ device message 12 ไบต์ = counter (เวลา ÷ 30 วินาที)
 `requireToken: false` ใช้ทดสอบด้วยแอป nRF Connect เท่านั้น (ปลอมได้) ลบออกก่อนใช้จริง
 
 ### 3. กุญแจลับ
-```bash
-npm run secret
-```
-ใส่ค่าที่ได้ใน Render (`BEACON_SECRET`) และใน `esp32/attendance_beacon/secrets.h`
+ใน Render ช่อง `BEACON_SECRET` กดปุ่ม **Generate** ได้เลย (หรือรัน `npm run secret`)
+แล้วคัดลอกค่าเดียวกันไปใส่ใน `esp32/attendance_beacon/secrets.h` (ข้อความอะไรก็ได้ยาว 32 ตัวขึ้นไป ห้ามมีช่องว่าง)
 
 ### 4. ESP32
 1. คัดลอก `esp32/attendance_beacon/secrets.example.h` เป็น `secrets.h` แล้วกรอก Wi-Fi, HWID, BEACON_SECRET

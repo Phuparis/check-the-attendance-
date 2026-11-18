@@ -33,7 +33,8 @@ const uint32_t STEP_SECONDS = 30;
 const esp_power_level_t TX_POWER = ESP_PWR_LVL_N12;
 
 uint8_t hwid[5];
-uint8_t secret[64];
+// กุญแจ = ตัวอักษรของ BEACON_SECRET ตามที่พิมพ์ (ต้องตรงกับ parseSecret ใน src/beaconToken.js)
+const uint8_t *secret = (const uint8_t *)BEACON_SECRET;
 size_t secretLen = 0;
 uint32_t lastCounter = 0;
 esp_ble_adv_params_t advParams = {};
@@ -93,8 +94,8 @@ void setup() {
   delay(200);
 
   if (parseHex(BEACON_HWID, hwid, 5) != 5) Serial.println("BEACON_HWID ต้องเป็นเลขฐานสิบหก 10 ตัว");
-  secretLen = parseHex(BEACON_SECRET, secret, sizeof(secret));
-  if (secretLen < 16) Serial.println("BEACON_SECRET สั้นเกินไป (ต้องอย่างน้อย 32 ตัว)");
+  secretLen = strlen(BEACON_SECRET);
+  if (secretLen < 32) Serial.println("BEACON_SECRET สั้นเกินไป (ต้องอย่างน้อย 32 ตัว)");
 
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);

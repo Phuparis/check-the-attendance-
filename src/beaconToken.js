@@ -16,13 +16,18 @@ const STEP_SECONDS = 30;
 const ACCEPT_PAST_STEPS = 2;
 const ACCEPT_FUTURE_STEPS = 1;
 
+/**
+ * กุญแจลับ = ข้อความอะไรก็ได้ยาวอย่างน้อย 32 ตัว ใช้ตัวอักษรตามที่พิมพ์เป็นกุญแจตรง ๆ
+ * (กดปุ่ม Generate ใน Render ได้เลย แล้วคัดลอกค่าเดียวกันไปใส่ใน ESP32)
+ */
 function parseSecret(secret) {
   if (Buffer.isBuffer(secret)) return secret;
   const s = String(secret || '').trim();
-  if (!/^[0-9a-fA-F]{32,}$/.test(s) || s.length % 2 !== 0) {
-    throw new Error('BEACON_SECRET ต้องเป็นเลขฐานสิบหกอย่างน้อย 32 ตัว (สร้างด้วย npm run secret)');
+  if (s.length < 32) {
+    throw new Error('BEACON_SECRET ต้องยาวอย่างน้อย 32 ตัว (กด Generate ใน Render หรือสร้างด้วย npm run secret)');
   }
-  return Buffer.from(s, 'hex');
+  if (!/^[\x21-\x7e]+$/.test(s)) throw new Error('BEACON_SECRET ใช้ได้แค่ตัวอักษรภาษาอังกฤษ ตัวเลข และสัญลักษณ์ ห้ามมีช่องว่าง');
+  return Buffer.from(s, 'utf8');
 }
 
 function counterAt(ms, step = STEP_SECONDS) {

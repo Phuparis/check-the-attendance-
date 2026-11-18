@@ -15,8 +15,12 @@
 
 ## สิ่งที่ตั้งค่าไว้แล้ว
 
-- **GitHub**: `phuparis/check-the-attendance-`
-- ยังไม่ได้สร้าง LINE OA, Render, Google Sheet, ยังไม่มี HWID จริง
+- **GitHub**: `phuparis/check-the-attendance-` (โค้ดอยู่ branch `ccr-30a7cdda-0102v0`)
+- **LINE Official Account**: ชื่อ CheckTheAttendance, เบสิค ID `@484qdcdb`, แพ็กเกจฟรี
+  - Provider ใหม่ชื่อ `Attendance` (แยกจากร้านกาแฟ เผื่อส่งมอบให้บริษัท) เปลี่ยนทีหลังไม่ได้
+  - เปิด Messaging API แล้ว (18 พ.ย. 2026) สร้างผ่านแอป LINE OA เพราะเว็บพาไปหน้าญี่ปุ่น
+  - ตอนเปิด Messaging API บนมือถือเจอ 400 Bad request รอบแรก ทำซ้ำแล้วผ่าน
+- ยังไม่ได้ตั้ง Render, Google Sheet, ยังไม่มี HWID จริง
 
 ## การตัดสินใจสำคัญ
 
@@ -29,6 +33,7 @@
 - สาย = เวลาเข้า > `WORK_START`
 - Google Sheets เป็นที่เก็บถาวร (Render ลบไฟล์ตอนรีสตาร์ต) โหลดพนักงานและเวลาวันนี้กลับตอนเริ่มรัน
   ใช้ REST + JWT เอง ไม่ใช้ googleapis, เขียนแบบ RAW กันสูตร
+- `BEACON_SECRET` = ข้อความ ASCII ยาว ≥ 32 ตัว ใช้ตัวอักษรเป็นกุญแจตรง ๆ (กด Generate ใน Render ได้)
 - ใช้แค่ Channel ID + secret (ขอ token เอง, ตั้ง webhook เอง) เหมือน line-beacon-cafe
 - หน้าเว็บจำลองต้องปิดตอนใช้จริง เพราะไม่มีการล็อกอิน
 
@@ -38,7 +43,8 @@
 - [ ] ยังไม่ได้ทดสอบกับ LINE จริง (ส่งข้อความ, beacon event จริง, ค่า `dm` ที่ LINE ส่งมา)
 - [ ] ยังไม่ได้ทดสอบกับ Google Sheets จริง
 - [ ] โค้ด ESP32 ยังไม่เคยคอมไพล์
-- [ ] สร้าง LINE OA ของโปรเจกต์นี้ (1 โปรเจกต์ = 1 OA)
+- [x] สร้าง LINE OA ของโปรเจกต์นี้ + เปิด Messaging API
+- [ ] ตั้งค่าการตอบกลับใน LINE OA (ปิดข้อความอัตโนมัติ/ทักทาย)
 - [ ] ขอ HWID จริง ใส่ใน `config/beacons.json`
 - [ ] Deploy บน Render
 

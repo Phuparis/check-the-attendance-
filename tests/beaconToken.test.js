@@ -18,7 +18,7 @@ test('ตรงกับค่าที่คำนวณด้วยมือ (
   assert.strictEqual(parseInt(dm.slice(0, 8), 16), counterAt(t0));
   const crypto = require('crypto');
   const data = Buffer.concat([Buffer.from(hwid, 'hex'), Buffer.from(dm.slice(0, 8), 'hex')]);
-  const mac = crypto.createHmac('sha256', Buffer.from(secret, 'hex')).update(data).digest('hex').slice(0, 16);
+  const mac = crypto.createHmac('sha256', Buffer.from(secret, 'utf8')).update(data).digest('hex').slice(0, 16);
   assert.strictEqual(dm.slice(8), mac);
 });
 
@@ -55,7 +55,8 @@ test('ไม่มีรหัส หรือรูปแบบผิด', () =
   assert.strictEqual(verifyDeviceMessage({ secret, hwid, dm: '00' }).reason, 'bad-format');
 });
 
-test('กุญแจสั้นหรือไม่ใช่ฐานสิบหก แจ้ง error', () => {
+test('กุญแจสั้นหรือมีช่องว่าง แจ้ง error / ค่าจากปุ่ม Generate ของ Render ใช้ได้', () => {
   assert.throws(() => parseSecret('abc'), /BEACON_SECRET/);
-  assert.throws(() => parseSecret('z'.repeat(32)), /BEACON_SECRET/);
+  assert.throws(() => parseSecret('a b'.repeat(16)), /BEACON_SECRET/);
+  assert.strictEqual(parseSecret('Xy9+/aB3kLmN0pQrStUvWxYz12345678=').length, 33);
 });

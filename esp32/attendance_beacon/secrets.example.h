@@ -7,5 +7,5 @@
 // Hardware ID 10 ตัวที่ได้จาก LINE Official Account Manager (ต้องตรงกับ config/beacons.json)
 #define BEACON_HWID   "0123456789"
 
-// ค่าเดียวกับ BEACON_SECRET ในเซิร์ฟเวอร์ (สร้างด้วย npm run secret)
+// ค่าเดียวกับ BEACON_SECRET ใน Render (คัดลอกมาทั้งหมด ตัวพิมพ์เล็กใหญ่ต้องตรงกัน)
 #define BEACON_SECRET "00000000000000000000000000000000"
