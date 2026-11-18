@@ -20,7 +20,10 @@
   - Provider ใหม่ชื่อ `Attendance` (แยกจากร้านกาแฟ เผื่อส่งมอบให้บริษัท) เปลี่ยนทีหลังไม่ได้
   - เปิด Messaging API แล้ว (18 พ.ย. 2026) สร้างผ่านแอป LINE OA เพราะเว็บพาไปหน้าญี่ปุ่น
   - ตอนเปิด Messaging API บนมือถือเจอ 400 Bad request รอบแรก ทำซ้ำแล้วผ่าน
-- ยังไม่ได้ตั้ง Render, Google Sheet, ยังไม่มี HWID จริง
+- **Render**: Web Service ในโปรเจกต์ `CheckAttendence`, Region Singapore, Free, deploy จาก branch `ccr-30a7cdda-0102v0`
+  - ลิงก์: `https://check-the-attendance.onrender.com` (หน้าเว็บจำลองเปิดอยู่)
+  - Environment Variables: `LINE_CHANNEL_ID`, `LINE_CHANNEL_SECRET`, `BEACON_SECRET` (Generate), `SIMULATOR_ENABLED=true`, `WORK_START=09:00`
+- ยังไม่ได้ตั้ง Google Sheet, ยังไม่มี HWID จริง
 
 ## การตัดสินใจสำคัญ
 
@@ -44,9 +47,14 @@
 - [ ] ยังไม่ได้ทดสอบกับ Google Sheets จริง
 - [ ] โค้ด ESP32 ยังไม่เคยคอมไพล์
 - [x] สร้าง LINE OA ของโปรเจกต์นี้ + เปิด Messaging API
-- [ ] ตั้งค่าการตอบกลับใน LINE OA (ปิดข้อความอัตโนมัติ/ทักทาย)
+- [x] ตั้งค่าการตอบกลับใน LINE OA (ปิดแชท ข้อความทักทาย ข้อความตอบกลับอัตโนมัติแล้ว)
 - [ ] ขอ HWID จริง ใส่ใน `config/beacons.json`
-- [ ] Deploy บน Render
+- [x] Deploy บน Render (ขึ้น Live แล้ว 18 พ.ย. 2026)
+- [ ] **ค้างอยู่ตรงนี้ (18 พ.ย. 2026)**: Logs ขึ้น "ขอ access token จาก LINE ไม่สำเร็จ (400)"
+  สวิตช์ Webhook ใน LINE OA จึงยังเทา น่าจะใส่ `LINE_CHANNEL_SECRET` ใน Render เป็นค่าเก่า (ก่อนกด Issue) หรือมีช่องว่างติดมา
+  แก้: คัดลอก Channel secret ใหม่จาก Developers Console > Basic settings ไปวางใน Render > Save, rebuild and deploy
+  แล้วดู Logs ต้องเห็น "ตั้ง Webhook URL ใน LINE แล้ว" จากนั้นเปิดสวิตช์ Webhook ใน ตั้งค่า > ตั้งค่าการตอบกลับ
+  เจ้าของจะทำต่อจากคอมพิวเตอร์
 - [x] ออก LINE Channel secret ใหม่แล้ว (ค่าเดิมเคยถูกส่งในแชท 18 พ.ย. 2026)
 
 ## ไอเดียต่อยอด
